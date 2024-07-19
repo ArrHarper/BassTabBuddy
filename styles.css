@@ -12,10 +12,6 @@
     margin-bottom: 20px;
 }
 
-.bass-tab-buddy-icon {
-    margin-right: 10px;
-}
-
 /* Metadata styles */
 .bass-tab-buddy-metadata,
 .file-options {
@@ -56,8 +52,12 @@
 }
 
 .bass-tab-buddy-icon {
-    margin-left: 10px;
     vertical-align: middle;
+    --icon-size: 120px;
+}
+
+.bass-tab-buddy-icon path {
+    fill: #b58900;
 }
 
 /* Setting item styles */

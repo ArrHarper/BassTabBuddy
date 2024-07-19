@@ -39,7 +39,7 @@ export class TablatureView extends ItemView {
         const headerEl = this.contentEl.createEl("h1", { cls: "bass-tab-buddy-header" });
         const iconEl = headerEl.createSpan({ cls: "bass-tab-buddy-icon" });
         headerEl.createSpan({ text: "Bass Tab Buddy" });
-        setIcon(iconEl, "disc-3");
+        setIcon(iconEl, "electric-bass");
 
         // Add metadata fields
         const metadataAndOptionsEl = this.contentEl.createDiv({ cls: 'metadata-and-options' });
