@@ -1,7 +1,6 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 import { Note, Measure, Tablature } from './models';
 import { BassTabBuddySettings, DEFAULT_SETTINGS } from './settings';
-import { NoteInputModal } from './NoteInputModal';
 import { TablatureView, VIEW_TYPE_TABLATURE } from './TablatureView';
 
 export default class BassTabBuddy extends Plugin {

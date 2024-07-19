@@ -126,6 +126,10 @@ export class Tablature {
         return false;
     }
 
+    get notes(): Note[] {
+        return this.measures.flatMap(measure => measure.notes);
+    }
+
     setDefaultTimeSignature(timeSignature: TimeSignature) {
         this.defaultTimeSignature = timeSignature;
     }

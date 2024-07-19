@@ -58,7 +58,7 @@ export class TablatureView extends ItemView {
 
         this.renderNoteInputControls();
 
-        const buttonEl = this.contentEl.createDiv({ cls: 'bass-tab-buddy-controls' });
+        const buttonEl = this.contentEl.createDiv({ cls: 'bass-tab-buddy-controls'});
 
         new ButtonComponent(buttonEl)
             .setButtonText("|<")
@@ -112,10 +112,10 @@ export class TablatureView extends ItemView {
     
         const addNoteValueButtons = (duration: number, name: string) => {
             noteValueSetting.addButton(btn => 
-                btn.setButtonText(name).onClick(() => this.addNoteValue(duration))
+                btn.setButtonText(name).setClass('noteValBtn').onClick(() => this.addNoteValue(duration))
             );
             noteValueSetting.addButton(btn => 
-                btn.setButtonText("Rest").onClick(() => this.addRestValue(duration))
+                btn.setButtonText("Rest").setClass('noteValBtn').onClick(() => this.addRestValue(duration))
             );
         };
     
@@ -146,15 +146,19 @@ export class TablatureView extends ItemView {
     }
 
     private copyBar = () => {
-        const measuresToCopy = 4;
+        const measuresToCopy = Math.min(4, this.tablature.measures.length); // Number of measures to copy (max 4)
+        const notesPerMeasure = this.tablature.defaultTimeSignature.beats;
         const notes = this.tablature.notes;
-        const lastNotes = notes.slice(-measuresToCopy * this.tablature.notesPerMeasure);
+    
+        // Calculate the starting index for the notes to copy
+        const startIdx = notes.length - (measuresToCopy * notesPerMeasure);
+        const lastNotes = notes.slice(startIdx);
+    
         if (lastNotes.length > 0) {
-            for (let i = 0; i < measuresToCopy; i++) {
-                for (const note of lastNotes) {
-                    const newNote = new Note(note.string, note.fret, note.duration);
-                    this.tablature.addNote(newNote);
-                }
+            // Duplicate each note only once
+            for (const note of lastNotes) {
+                const newNote = new Note(note.bassString, note.fret, note.duration);
+                this.tablature.addNote(newNote);
             }
             this.renderTablature();
             new Notice(`Duplicated the last ${measuresToCopy} measures`);
