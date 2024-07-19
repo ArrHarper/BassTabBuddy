@@ -71,6 +71,11 @@ export class TablatureView extends ItemView {
             .onClick(() => this.undoNote());
 
         new ButtonComponent(buttonEl)
+            .setButtonText("Copy Bar")
+            .setTooltip("Copy last 4 measures")
+            .onClick(() => this.copyBar());
+
+        new ButtonComponent(buttonEl)
             .setButtonText("Save Tab")
             .onClick(() => this.saveTab());
 
@@ -137,6 +142,24 @@ export class TablatureView extends ItemView {
             new Notice(`Added rest: Duration ${duration}`);
         } else {
             new Notice(`Added note: String ${string}, Fret ${fret}, Duration ${duration}`);
+        }
+    }
+
+    private copyBar = () => {
+        const measuresToCopy = 4;
+        const notes = this.tablature.notes;
+        const lastNotes = notes.slice(-measuresToCopy * this.tablature.notesPerMeasure);
+        if (lastNotes.length > 0) {
+            for (let i = 0; i < measuresToCopy; i++) {
+                for (const note of lastNotes) {
+                    const newNote = new Note(note.string, note.fret, note.duration);
+                    this.tablature.addNote(newNote);
+                }
+            }
+            this.renderTablature();
+            new Notice(`Duplicated the last ${measuresToCopy} measures`);
+        } else {
+            new Notice("Not enough measures to copy");
         }
     }
     
@@ -212,11 +235,9 @@ export class TablatureView extends ItemView {
         console.log("Rendered tablature:", renderedText);
         pre.setText(renderedText);
     }
-    
-    private setTablature = (tablature: Tablature) => {
-        console.log("Setting new tablature:", tablature);
-        this.tablature = tablature;
-        this.renderTablature();
+
+    private previousBar = () => {
+        // Implement the logic for previous bar if needed
     }
 
     private resetTablature = () => {
