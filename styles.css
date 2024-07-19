@@ -135,3 +135,14 @@
     white-space: pre;
     overflow-x: auto;
 }
+
+.bass-tab-buddy-note-input .setting-item-control {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.bass-tab-buddy-note-input .setting-item-control button {
+    flex: 1;
+    min-width: 80px;
+}

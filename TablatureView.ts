@@ -1,5 +1,5 @@
 import { ItemView, WorkspaceLeaf, ButtonComponent, MarkdownView, TFile, Notice, TextComponent, Setting, setIcon } from 'obsidian';
-import { Tablature, Note } from './models';
+import { Tablature, Note, Measure } from './models';
 import { TabRenderer } from './TabRenderer';
 
 export const VIEW_TYPE_TABLATURE = "tablature-view";
@@ -63,36 +63,20 @@ export class TablatureView extends ItemView {
         new ButtonComponent(buttonEl)
             .setButtonText("|<")
             .setTooltip("Undo Measure")
-            .onClick(() => {
-                this.undoMeasure();
-            });
+            .onClick(() => this.undoMeasure());
 
         new ButtonComponent(buttonEl)
             .setButtonText("<")
             .setTooltip("Undo Note")
-            .onClick(() => {
-                this.undoNote();
-            });
-
-        new ButtonComponent(buttonEl)
-            .setButtonText("Add to Tab")
-            .onClick(() => {
-                const note = new Note(this.currentBassString, this.currentFret, this.currentDuration);
-                this.tablature.addNote(note);
-                this.renderTablature();
-            });
+            .onClick(() => this.undoNote());
 
         new ButtonComponent(buttonEl)
             .setButtonText("Save Tab")
-            .onClick(() => {
-                this.saveTab();
-            });
+            .onClick(() => this.saveTab());
 
         new ButtonComponent(buttonEl)
             .setButtonText("Reset")
-            .onClick(() => {
-                this.resetTablature();
-            });
+            .onClick(() => this.resetTablature());
 
         this.tabEl = this.contentEl.createDiv({ cls: 'bass-tab-buddy-tablature' });
         this.renderTablature();
@@ -119,18 +103,43 @@ export class TablatureView extends ItemView {
                 });
             });
     
-        new Setting(inputEl)
-            .setName("Duration")
-            .addButton(btn => {
-                this.durationInput = btn;
-                this.createSegmentedControl(btn, ['Whole', 'Half', 'Quarter', 'Eighth', 'Sixteenth'], 
-                    (value) => {
-                        const durationMap = {'Whole': 1, 'Half': 0.5, 'Quarter': 0.25, 'Eighth': 0.125, 'Sixteenth': 0.0625};
-                        this.currentDuration = durationMap[value];
-                    });
-            });
+        const noteValueSetting = new Setting(inputEl).setName("Note Value");
+    
+        const addNoteValueButtons = (duration: number, name: string) => {
+            noteValueSetting.addButton(btn => 
+                btn.setButtonText(name).onClick(() => this.addNoteValue(duration))
+            );
+            noteValueSetting.addButton(btn => 
+                btn.setButtonText("Rest").onClick(() => this.addRestValue(duration))
+            );
+        };
+    
+        addNoteValueButtons(1, "Whole");
+        addNoteValueButtons(0.5, "1/2");
+        addNoteValueButtons(0.25, "1/4");
+        addNoteValueButtons(0.125, "1/8");
+        addNoteValueButtons(0.0625, "1/16");
     }
-
+    
+    private addNoteValue = (duration: number) => {
+        this.addNote(this.currentBassString, this.currentFret, duration);
+    }
+    
+    private addRestValue = (duration: number) => {
+        this.addNote(-1, -1, duration);
+    }
+    
+    private addNote = (string: number, fret: number, duration: number) => {
+        const note = new Note(string, fret, duration);
+        this.tablature.addNote(note);
+        this.renderTablature();
+        if (string === -1 && fret === -1) {
+            new Notice(`Added rest: Duration ${duration}`);
+        } else {
+            new Notice(`Added note: String ${string}, Fret ${fret}, Duration ${duration}`);
+        }
+    }
+    
     private createSegmentedControl(button: ButtonComponent, values: string[], onChange: (value: string) => void) {
         const containerEl = createEl('div', { cls: 'segmented-control' });
         values.forEach((value, index) => {
@@ -147,7 +156,7 @@ export class TablatureView extends ItemView {
         button.buttonEl.replaceWith(containerEl);
     }
 
-    saveTab() {
+    private saveTab = () => {
         const title = this.titleInput.getValue();
         const artist = this.artistInput.getValue();
         const renderedTab = TabRenderer.renderAsText(this.tablature);
@@ -186,7 +195,7 @@ export class TablatureView extends ItemView {
         }
     }
 
-    renderTablature() {
+    private renderTablature = () => {
         if (!this.tabEl) return;
         this.tabEl.empty();
         const pre = this.tabEl.createEl("pre");
@@ -204,15 +213,33 @@ export class TablatureView extends ItemView {
         pre.setText(renderedText);
     }
     
-    setTablature(tablature: Tablature) {
+    private setTablature = (tablature: Tablature) => {
         console.log("Setting new tablature:", tablature);
         this.tablature = tablature;
         this.renderTablature();
     }
 
-    resetTablature() {
+    private resetTablature = () => {
         this.tablature = new Tablature();
         this.renderTablature();
         new Notice("Tablature has been reset.");
+    }
+
+    private undoNote = () => {
+        if (this.tablature.undoLastNote()) {
+            this.renderTablature();
+            new Notice("Last note removed.");
+        } else {
+            new Notice("No notes to remove.");
+        }
+    }
+
+    private undoMeasure = () => {
+        if (this.tablature.undoLastMeasure()) {
+            this.renderTablature();
+            new Notice("Last measure removed.");
+        } else {
+            new Notice("No measures to remove.");
+        }
     }
 }
