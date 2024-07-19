@@ -1,82 +1,137 @@
-/*
+/* General styles */
+.bass-tab-buddy-content {
+    padding: 10px;
+    max-width: 632px;
+    margin: 0 auto;
+}
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
+.bass-tab-buddy-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
 
-If your plugin does not need CSS, delete this file.
+.bass-tab-buddy-icon {
+    margin-right: 10px;
+}
 
-*/
+/* Metadata styles */
+.bass-tab-buddy-metadata .setting-item {
+    border-top: none;
+    padding-top: 0;
+}
 
+.bass-tab-buddy-metadata .setting-item-control {
+    flex-grow: 1;
+}
+
+.bass-tab-buddy-metadata input {
+    width: 100%;
+}
+
+.bass-tab-buddy-icon {
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+/* Setting item styles */
 .setting-item {
     display: flex;
-    justify-content: space-between;
-    align-items: stretch;
-    margin-bottom: 10px;
-    width: 100%; /* Ensure the item takes the full width */
     flex-direction: column;
+    align-items: stretch;
+    margin-bottom: 20px;
+    width: 100%;
 }
 
 .setting-item-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    margin-right: 10px; /* Space between info and control */
+    margin-bottom: 5px;
 }
 
 .setting-item-name {
-    white-space: nowrap; /* Prevent label from wrapping */
-    padding: 5px;
+    font-weight: bold;
 }
 
 .setting-item-control {
-    flex: 1; /* Allow the control to take the remaining space */
+    width: 100%;
 }
 
+/* Segmented control styles */
 .segmented-control {
     display: flex;
-    border: 2px solid #459174;
+    border: 2px solid var(--interactive-accent);
     border-radius: 4px;
     overflow: hidden;
-    width: 100%; /* Set width to 100% of its container */
+    width: 100%;
 }
 
 .segment {
     flex: 1;
     text-align: center;
-    padding: 10px; /* Adjust padding for desired spacing */
+    padding: 10px;
     cursor: pointer;
+    background-color: var(--background-primary);
     transition: background-color 0.3s;
-    box-sizing: border-box; /* Include padding and border in element's total width and height */
+    box-sizing: border-box;
 }
 
 .segment:not(:last-child) {
-    border-right: 2px solid #459174;
+    border-right: 2px solid var(--interactive-accent);
 }
 
 .segment.is-active {
-    background-color: #459174;
+    background-color: var(--interactive-accent);
     color: var(--text-on-accent);
 }
 
-.button-container {
+/* Button styles */
+/*.bass-tab-buddy-controls {
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
-    gap: 10px; /* Add gap for proportional spacing */
+    gap: 10px;
 }
 
-.button-container button {
-    flex: 1; /* Ensures buttons are proportionally spaced */
-    padding: 10px; /* Adjust padding for desired spacing */
+.bass-tab-buddy-controls button {
+    flex: 1;
+    padding: 10px;
     text-align: center;
-    background-color: #459174;
-}
-
-.button-container button:hover {
-    background-color: #909145;
-}
-
-.button-container button:active {
-    background-color: #d4d4ca;
+    background-color: var(--interactive-accent);
     color: var(--text-on-accent);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}*/
+
+.bass-tab-buddy-controls {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1em;
+}
+
+.bass-tab-buddy-controls button {
+    margin-right: 0.5em;
+}
+
+.bass-tab-buddy-controls button:hover {
+    background-color: var(--interactive-hover);
+}
+
+.bass-tab-buddy-controls button:active {
+    background-color: var(--interactive-accent-hover);
+}
+
+/* Note input styles */
+.bass-tab-buddy-note-input .setting-item {
+    border-top: none;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+}
+
+/* Tablature display styles */
+.bass-tab-buddy-tablature {
+    margin-top: 20px;
+    font-family: monospace;
+    white-space: pre;
+    overflow-x: auto;
 }

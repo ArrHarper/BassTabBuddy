@@ -118,6 +118,14 @@ export class Tablature {
         return false;
     }
 
+    undoLastMeasure(): boolean {
+        if (this.measures.length > 0) {
+            this.measures.pop();
+            return true;
+        }
+        return false;
+    }
+
     setDefaultTimeSignature(timeSignature: TimeSignature) {
         this.defaultTimeSignature = timeSignature;
     }
