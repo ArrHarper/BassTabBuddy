@@ -23,10 +23,6 @@ export default class BassTabBuddy extends Plugin {
 			new Notice('The Low End Slappeth');
         });
 
-		const note = new Note(1, 0, this.settings.defaultDuration);
-        const measure = new Measure([note]);
-        this.tablature.addMeasure(measure);
-
 		this.addCommand({
             id: 'add-note',
             name: 'Add Note',

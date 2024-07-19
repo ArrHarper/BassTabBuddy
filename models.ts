@@ -23,10 +23,11 @@ export class Note {
         }
     }
 
-    private validateDuration(duration: number) {
+    private validateDuration(duration: number): void {
         const validDurations = [1, 0.5, 0.25, 0.125, 0.0625];
         if (!validDurations.includes(duration)) {
-            throw new Error("Invalid duration");
+            console.warn(`Invalid duration: ${duration}. Defaulting to quarter note (0.25).`);
+            this.duration = 0.25;
         }
     }
 
