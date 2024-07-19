@@ -18,7 +18,7 @@ export default class BassTabBuddy extends Plugin {
             (leaf: WorkspaceLeaf) => (this.view = new TablatureView(leaf))
         );
 
-        this.addRibbonIcon('list-music', 'Open Bass Tablature', () => {
+        this.addRibbonIcon('music', 'Open Bass Tablature', () => {
             this.activateView();
 			new Notice('The Low End Slappeth');
         });

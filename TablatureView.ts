@@ -41,8 +41,10 @@ export class TablatureView extends ItemView {
         headerEl.createSpan({ text: "Bass Tab Buddy" });
         setIcon(iconEl, "disc-3");
 
-        // Add Title and Artist input fields
-        const metadataEl = this.contentEl.createDiv({ cls: 'bass-tab-buddy-metadata' });
+        // Add metadata fields
+        const metadataAndOptionsEl = this.contentEl.createDiv({ cls: 'metadata-and-options' });
+        
+        const metadataEl = metadataAndOptionsEl.createDiv({ cls: 'bass-tab-buddy-metadata' });
         new Setting(metadataEl)
             .setName("Title")
             .addText(text => {
@@ -56,32 +58,63 @@ export class TablatureView extends ItemView {
                 text.onChange(() => this.renderTablature());
             });
 
+        const fileOptionsEl = metadataAndOptionsEl.createDiv({ cls: 'file-options' });
+        new Setting(fileOptionsEl).setName("File Options");
+        
+        const fileOptionsButtonsEl = fileOptionsEl.createDiv({ cls: 'file-options-buttons' });
+        
+        new ButtonComponent(fileOptionsButtonsEl)
+            .setButtonText("New Note")
+            .setTooltip("Open a new Obsidian note")
+            .onClick(() => { /* Functionality to be added later */ });
+        
+        new ButtonComponent(fileOptionsButtonsEl)
+            .setButtonText("Add Template")
+            .setTooltip("Add a template to the current note")
+            .onClick(() => { /* Functionality to be added later */ });
+        
+        new ButtonComponent(fileOptionsButtonsEl)
+            .setButtonText("Save Metadata")
+            .setTooltip("Save the current title and artist")
+            .onClick(() => { /* Functionality to be added later */ });
+        
+        new ButtonComponent(fileOptionsButtonsEl)
+            .setButtonText("Clear Metadata")
+            .setTooltip("Clear the current title and artist")
+            .setClass('ghost-button')
+            .onClick(() => { /* Functionality to be added later */ });
+
         this.renderNoteInputControls();
 
-        const buttonEl = this.contentEl.createDiv({ cls: 'bass-tab-buddy-controls'});
+        new Setting(this.contentEl).setName("Tab Controls");
+        const controlsContainer = this.contentEl.createDiv({ cls: 'controls-container' });
+        const buttonEl = controlsContainer.createDiv({ cls: 'bass-tab-buddy-controls'});
 
-        new ButtonComponent(buttonEl)
-            .setButtonText("|<")
-            .setTooltip("Undo Measure")
-            .onClick(() => this.undoMeasure());
+    new ButtonComponent(buttonEl)
+        .setButtonText("|<")
+        .setTooltip("Undo Measure")
+        .setClass('ghost-button')
+        .onClick(() => this.undoMeasure());
 
-        new ButtonComponent(buttonEl)
-            .setButtonText("<")
-            .setTooltip("Undo Note")
-            .onClick(() => this.undoNote());
+    new ButtonComponent(buttonEl)
+        .setButtonText("<")
+        .setTooltip("Undo Note")
+        .setClass('ghost-button')
+        .onClick(() => this.undoNote());
 
-        new ButtonComponent(buttonEl)
-            .setButtonText("Copy Bar")
-            .setTooltip("Copy last 4 measures")
-            .onClick(() => this.copyBar());
+    new ButtonComponent(buttonEl)
+        .setButtonText("Copy Bar")
+        .setTooltip("Copy last 4 measures")
+        .onClick(() => this.copyBar());
 
-        new ButtonComponent(buttonEl)
-            .setButtonText("Save Tab")
-            .onClick(() => this.saveTab());
+    new ButtonComponent(buttonEl)
+        .setButtonText("Save Tab")
+        .onClick(() => this.saveTab());
 
-        new ButtonComponent(buttonEl)
-            .setButtonText("Reset")
-            .onClick(() => this.resetTablature());
+    new ButtonComponent(buttonEl)
+        .setButtonText("Reset")
+        .setClass('ghost-button')
+        .onClick(() => this.resetTablature());
 
         this.tabEl = this.contentEl.createDiv({ cls: 'bass-tab-buddy-tablature' });
         this.renderTablature();
@@ -108,15 +141,19 @@ export class TablatureView extends ItemView {
                 });
             });
     
-        const noteValueSetting = new Setting(inputEl).setName("Note Value");
+        const noteValueSetting = new Setting(inputEl).setName("Notes and Rests");
+        const noteValueButtons = noteValueSetting.controlEl.createDiv({ cls: 'note-value-buttons' });
     
         const addNoteValueButtons = (duration: number, name: string) => {
-            noteValueSetting.addButton(btn => 
-                btn.setButtonText(name).setClass('noteValBtn').onClick(() => this.addNoteValue(duration))
-            );
-            noteValueSetting.addButton(btn => 
-                btn.setButtonText("Rest").setClass('noteValBtn').onClick(() => this.addRestValue(duration))
-            );
+            const pairContainer = noteValueButtons.createDiv({ cls: 'note-value-pair' });
+            new ButtonComponent(pairContainer)
+                .setButtonText(name)
+                .setClass('noteValBtn')
+                .onClick(() => this.addNoteValue(duration));
+            new ButtonComponent(pairContainer)
+                .setButtonText("Rest")
+                .setClass('noteValBtn')
+                .onClick(() => this.addRestValue(duration));
         };
     
         addNoteValueButtons(1, "Whole");
@@ -140,8 +177,6 @@ export class TablatureView extends ItemView {
         this.renderTablature();
         if (string === -1 && fret === -1) {
             new Notice(`Added rest: Duration ${duration}`);
-        } else {
-            new Notice(`Added note: String ${string}, Fret ${fret}, Duration ${duration}`);
         }
     }
 
