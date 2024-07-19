@@ -17,25 +17,42 @@
 }
 
 /* Metadata styles */
-.bass-tab-buddy-metadata {
+.bass-tab-buddy-metadata,
+.file-options {
     display: flex;
     flex-direction: column;
-    gap: 10px; /* Consistent gap between title and artist */
+    gap: 10px;
+    height: 100%;
 }
 
-.bass-tab-buddy-metadata .setting-item {
-    border-top: none;
-    padding-top: 0;
-    margin-bottom: 0; /* Remove default margin */
+.bass-tab-buddy-metadata .setting-item,
+.file-options .setting-item {
+    border-bottom: 1px solid var(--background-modifier-border);
 }
 
-.bass-tab-buddy-metadata .setting-item-control {
-    flex-grow: 1;
+.bass-tab-buddy-metadata input,
+.file-options-buttons button {
+    width: 100%;
+    height: 32px;
+    box-sizing: border-box;
 }
 
 .bass-tab-buddy-metadata input {
+    padding: 0 10px;
+}
+
+.file-options-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.file-options-buttons button {
     width: 100%;
-    height: 32px; /* Match the height of the buttons */
+    text-align: left;
+    justify-content: flex-start;
+    height: 32px; /* Match the height of the input fields */
+    padding: 0 10px; /* Add some padding to align text with input fields */
 }
 
 .bass-tab-buddy-icon {
@@ -199,10 +216,10 @@
 /* Styling for the metadata and file options container */
 .metadata-and-options {
     display: grid;
-    grid-template-columns: 3fr 2fr;
+    grid-template-columns: 1fr 1fr;
     gap: 20px;
     margin-bottom: 20px;
-    align-items: start; /* Align items to the top of their grid areas */
+    align-items: start;
 }
 
 .file-options {
@@ -212,21 +229,21 @@
 }
 
 .file-options .setting-item {
-    border-top: none;
     padding: 0;
     margin-bottom: 0;
 }
 
-.file-options-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+
+
+.song-info-inputs {
+    display: flex;
+    flex-direction: column;
     gap: 10px;
 }
 
-.file-options-buttons button {
+.song-info-field {
     width: 100%;
-    text-align: left;
-    justify-content: flex-start;
-    height: 32px; /* Match the height of the input fields */
-    padding: 0 10px; /* Add some padding to align text with input fields */
+    height: 32px;
+    padding: 0 10px;
+    box-sizing: border-box;
 }

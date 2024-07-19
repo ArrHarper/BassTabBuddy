@@ -43,20 +43,22 @@ export class TablatureView extends ItemView {
 
         // Add metadata fields
         const metadataAndOptionsEl = this.contentEl.createDiv({ cls: 'metadata-and-options' });
-        
+
         const metadataEl = metadataAndOptionsEl.createDiv({ cls: 'bass-tab-buddy-metadata' });
-        new Setting(metadataEl)
-            .setName("Title")
-            .addText(text => {
-                this.titleInput = text;
-                text.onChange(() => this.renderTablature());
-            });
-        new Setting(metadataEl)
-            .setName("Artist")
-            .addText(text => {
-                this.artistInput = text;
-                text.onChange(() => this.renderTablature());
-            });
+        new Setting(metadataEl).setName("Song Info");
+
+       const songInfoInputs = metadataEl.createDiv({ cls: 'song-info-inputs' });
+
+        this.titleInput = new TextComponent(songInfoInputs)
+            .setPlaceholder("Title")
+            .onChange(() => this.renderTablature());
+
+        this.artistInput = new TextComponent(songInfoInputs)
+            .setPlaceholder("Artist")
+            .onChange(() => this.renderTablature());
+
+        this.titleInput.inputEl.addClass('song-info-field');
+        this.artistInput.inputEl.addClass('song-info-field');
 
         const fileOptionsEl = metadataAndOptionsEl.createDiv({ cls: 'file-options' });
         new Setting(fileOptionsEl).setName("File Options");
@@ -218,7 +220,7 @@ export class TablatureView extends ItemView {
         button.buttonEl.replaceWith(containerEl);
     }
 
-    private saveTab = () => {
+    private saveTab = async () => {
         const title = this.titleInput.getValue();
         const artist = this.artistInput.getValue();
         const renderedTab = TabRenderer.renderAsText(this.tablature);
@@ -231,29 +233,43 @@ export class TablatureView extends ItemView {
             tabContent += `Artist: ${artist}\n`;
         }
         tabContent += `\n\`\`\`tab\n${renderedTab}\n\`\`\`\n`;
-
-        // Get all open MarkdownView instances
-        const markdownViews = this.app.workspace.getLeavesOfType('markdown');
-
-        if (markdownViews.length > 0) {
-            // Use the first open MarkdownView
-            const view = markdownViews[0].view as MarkdownView;
-            const editor = view.editor;
-            const cursor = editor.getCursor();
-            editor.replaceRange(tabContent, cursor);
-            new Notice("Tablature saved to note!");
+    
+        // Get the active leaf (which should be the current open note)
+        const activeLeaf = this.app.workspace.activeLeaf;
+    
+        if (activeLeaf && activeLeaf.view instanceof MarkdownView) {
+            const file = activeLeaf.view.file;
+            if (file) {
+                await this.app.vault.modify(file, tabContent);
+                new Notice("Tablature updated in the current note!");
+            } else {
+                const editor = activeLeaf.view.editor;
+                const cursor = editor.getCursor();
+                editor.replaceRange(tabContent, cursor);
+                new Notice("Tablature inserted into the current note!");
+            }
         } else {
-            // If no markdown file is open, create a new one
-            const fileName = title ? `${title} Bass Tab` : "Bass Tab";
-            this.app.vault.create(`${fileName} ${new Date().toLocaleString()}.md`, tabContent)
-                .then((file: TFile) => {
-                    this.app.workspace.getLeaf().openFile(file);
-                    new Notice("Tablature saved to new note!");
-                })
-                .catch((error) => {
-                    console.error("Error creating new file:", error);
-                    new Notice("Error saving tablature. Check console for details.");
-                });
+            const fileName = this.getSafeFileName(title);
+            const existingFile = this.app.vault.getAbstractFileByPath(`${fileName}.md`);
+            
+            if (existingFile instanceof TFile) {
+                await this.app.vault.modify(existingFile, tabContent);
+                await this.app.workspace.getLeaf().openFile(existingFile);
+                new Notice("Tablature updated in existing note!");
+            } else {
+                const newFile = await this.app.vault.create(`${fileName}.md`, tabContent);
+                await this.app.workspace.getLeaf().openFile(newFile);
+                new Notice("Tablature saved to new note!");
+            }
+        }
+    }
+    
+    private getSafeFileName(title: string): string {
+        if (title) {
+            const safeTitlePart = title.replace(/[*"\\/<>:|?]/g, '').trim();
+            return `${safeTitlePart} Bass Tab`;
+        } else {
+            return "New Bass Tab";
         }
     }
 
