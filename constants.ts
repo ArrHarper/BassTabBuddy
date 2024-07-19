@@ -1,0 +1,1 @@
+export const SLOTS_PER_MEASURE = 16;
