@@ -209,8 +209,9 @@
 }
 
 .ghost-button:hover {
-    border: 1px solid #cb4b16 !important;
-    color: #cb4b16 !important;
+    background-color: rgba(218, 150, 150, 0.5) !important;
+    border: 1px solid rgb(218, 150, 150) !important;
+    color: white !important;
 }
 
 /* Styling for the metadata and file options container */

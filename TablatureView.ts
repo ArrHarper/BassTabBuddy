@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf, ButtonComponent, MarkdownView, TFile, Notice, TextComponent, Setting, setIcon } from 'obsidian';
+import { ItemView, WorkspaceLeaf, ButtonComponent, MarkdownView, TFile, Notice, TextComponent, Setting, setIcon, TemplaterError } from 'obsidian';
 import { Tablature, Note, Measure } from './models';
 import { TabRenderer } from './TabRenderer';
 
@@ -10,15 +10,13 @@ export class TablatureView extends ItemView {
     private tabEl: HTMLElement;
     private titleInput: TextComponent;
     private artistInput: TextComponent;
-    private bassStringInput: ButtonComponent;
-    private fretInput: ButtonComponent;
-    private durationInput: ButtonComponent;
     private currentBassString: number = 1; // E string
     private currentFret: number = 0;
-    private currentDuration: number = 0.25; // Quarter note
+    private plugin: BassTabBuddy;
 
-    constructor(leaf: WorkspaceLeaf) {
+    constructor(leaf: WorkspaceLeaf, plugin: BassTabBuddy) {
         super(leaf);
+        this.plugin = plugin;
         this.tablature = new Tablature();
     }
 
@@ -68,20 +66,20 @@ export class TablatureView extends ItemView {
         new ButtonComponent(fileOptionsButtonsEl)
             .setButtonText("New Note")
             .setTooltip("Open a new Obsidian note")
-            .onClick(() => { /* Functionality to be added later */ });
+            .onClick(() => this.createNewNote());
         
         new ButtonComponent(fileOptionsButtonsEl)
-            .setButtonText("Add Template")
-            .setTooltip("Add a template to the current note")
-            .onClick(() => { /* Functionality to be added later */ });
+            .setButtonText("Open Template")
+            .setTooltip("Open a new note from your specified temnplate")
+            .onClick(() => this.addTemplate());
         
         new ButtonComponent(fileOptionsButtonsEl)
-            .setButtonText("Save Metadata")
+            .setButtonText("Save Info")
             .setTooltip("Save the current title and artist")
             .onClick(() => { /* Functionality to be added later */ });
         
         new ButtonComponent(fileOptionsButtonsEl)
-            .setButtonText("Clear Metadata")
+            .setButtonText("Clear Info")
             .setTooltip("Clear the current title and artist")
             .setClass('ghost-button')
             .onClick(() => { /* Functionality to be added later */ });
@@ -291,10 +289,6 @@ export class TablatureView extends ItemView {
         pre.setText(renderedText);
     }
 
-    private previousBar = () => {
-        // Implement the logic for previous bar if needed
-    }
-
     private resetTablature = () => {
         this.tablature = new Tablature();
         this.renderTablature();
@@ -316,6 +310,71 @@ export class TablatureView extends ItemView {
             new Notice("Last measure removed.");
         } else {
             new Notice("No measures to remove.");
+        }
+    }
+
+    private async createNewNote(): Promise<TFile | null> {
+        let newFileName = "Untitled";
+        let fileNum = 0;
+        let file: TFile;
+    
+        do {
+            const fileName = fileNum === 0 ? `${newFileName}.md` : `${newFileName} ${fileNum}.md`;
+            if (!this.app.vault.getAbstractFileByPath(fileName)) {
+                file = await this.app.vault.create(fileName, "");
+                break;
+            }
+            fileNum++;
+        } while (fileNum < 1000);
+    
+        if (file) {
+            const newLeaf = this.app.workspace.getLeaf('tab');
+            await newLeaf.openFile(file);
+            this.app.workspace.setActiveLeaf(newLeaf);
+            return file;
+        } else {
+            new Notice("Failed to create a new note with a unique name");
+            return null;
+        }
+    }
+
+    private async addTemplate() {
+        const templatePath = this.plugin.settings.templatePath;
+        if (!templatePath) {
+            new Notice("Template path not set. Please set it in the plugin settings.");
+            return;
+        }
+    
+        const templateFile = this.app.vault.getAbstractFileByPath(templatePath);
+        if (!(templateFile instanceof TFile)) {
+            new Notice("Template file not found. Please check the path in the plugin settings.");
+            return;
+        }
+    
+        try {
+            const templateContent = await this.app.vault.read(templateFile);
+    
+            // Try to get the active markdown view
+            let activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
+    
+            // If no active markdown view, create a new note
+            if (!activeView) {
+                const file = await this.createNewNote();
+                if (file) {
+                    activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
+                }
+            }
+    
+            if (activeView) {
+                const editor = activeView.editor;
+                const cursor = editor.getCursor();
+                editor.replaceRange(templateContent, cursor);
+            } else {
+                new Notice("Failed to add template. No active markdown view available.");
+            }
+        } catch (error) {
+            console.error("Error reading template file:", error);
+            new Notice("Error reading template file. Please check the console for details.");
         }
     }
 }
